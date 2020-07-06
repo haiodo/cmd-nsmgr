@@ -33,7 +33,6 @@ import (
 	"github.com/networkservicemesh/api/pkg/api/registry"
 	"github.com/networkservicemesh/cmd-nsmgr/internal/config"
 	"github.com/networkservicemesh/sdk/pkg/tools/log"
-	"github.com/networkservicemesh/sdk/pkg/tools/signalctx"
 	"github.com/networkservicemesh/sdk/pkg/tools/spanhelper"
 	"github.com/networkservicemesh/sdk/pkg/tools/spiffejwt"
 	"github.com/sirupsen/logrus"
@@ -87,11 +86,8 @@ func RunNsmgr(ctx context.Context, configuration *config.Config) error {
 		span:          spanhelper.FromContext(ctx, "start"),
 	}
 
-	// Update context
-	m.ctx = signalctx.WithSignals(m.span.Context())
-
 	// Context to use for all things started in main
-	m.ctx, m.cancelFunc = context.WithCancel(ctx)
+	m.ctx, m.cancelFunc = context.WithCancel(m.span.Context())
 
 	if err := m.initSecurity(); err != nil {
 		m.span.LogErrorf("failed to create new spiffe TLS Peer %v", err)
@@ -104,7 +100,7 @@ func RunNsmgr(ctx context.Context, configuration *config.Config) error {
 	}
 
 	nsmMgr := &registry.NetworkServiceEndpoint{
-		Name: configuration.Name + "#nsmgr",
+		Name: configuration.Name,
 		Url:  configuration.ListenOn[0].String(),
 	}
 
@@ -113,6 +109,7 @@ func RunNsmgr(ctx context.Context, configuration *config.Config) error {
 
 	// Construct NSMgr chain
 	m.mgr = nsmgr.NewServer(
+		m.span.Context(),
 		nsmMgr,
 		authorize.NewServer(),
 		spiffejwt.TokenGeneratorFunc(m.source, m.configuration.MaxTokenLifetime),

@@ -24,8 +24,8 @@ import (
 
 // Config - configuration for cmd-nsmgr
 type Config struct {
-	Name             string        `default:"nmgr" desc:"Name of Network service manager"`
-	ListenOn         []*url.URL    `default:"[unix:///var/lib/networkservicemesh/nsm.io.sock" desc:"url to listen on. tcp:// one will be used a public to register NSM" split_words:"true"`
-	RegistryURL      *url.URL      `default:"tcp://localhost:5001" desc:"A NSE registry url to use" split_words:"true"`
+	Name             string        `default:"nmgr" desc:"Name of Network service manager" required:"true"`
+	ListenOn         []*url.URL    `default:"unix:///var/lib/networkservicemesh/nsm.io.sock" desc:"url to listen on. tcp:// one will be used a public to register NSM" split_words:"true" required:"true"`
+	RegistryURL      *url.URL      `default:"tcp://localhost:5001" desc:"A NSE registry url to use. If not passed local memory registry will be used" split_words:"true" required:"false"`
 	MaxTokenLifetime time.Duration `default:"24h" desc:"maximum lifetime of tokens" split_words:"true"`
 }

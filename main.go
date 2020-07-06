@@ -37,7 +37,7 @@ func main() {
 	// Setup logging
 	logrus.SetFormatter(&nested.Formatter{})
 	logrus.SetLevel(logrus.TraceLevel)
-	ctx := log.WithField(signalctx.WithSignals(context.Background()), "cmd", os.Args[:2])
+	ctx := log.WithField(signalctx.WithSignals(context.Background()), "cmd", os.Args[:1])
 
 	var span opentracing.Span
 	// Enable Jaeger
